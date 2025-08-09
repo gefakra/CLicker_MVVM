@@ -15,14 +15,18 @@ namespace ClickerMVVM.ViewModel
         public StatsViewModel(IGameService gameService)
         {
             _gameService = gameService;
-            if (_gameService is GameService gs)
-            {
-                gs.GetStocks().ToList().ForEach(s =>
-                {
-                    if (s is INotifyPropertyChanged npc)
-                        npc.PropertyChanged += (_, __) => OnPropertyChanged(nameof(BonusPerClick));
-                });
-            }
+            //if (_gameService is GameService gs)
+            //{
+            //    gs.GetStocks().ToList().ForEach(s =>
+            //    {
+            //        if (s is INotifyPropertyChanged npc)
+            //            npc.PropertyChanged += (_, __) => OnPropertyChanged(nameof(BonusPerClick));
+            //    });
+            //}
+
+            (gameService.GetStocks() as IEnumerable<INotifyPropertyChanged>)?
+                .ToList()
+                .ForEach(s => s.PropertyChanged += (_, __) => OnPropertyChanged(nameof(BonusPerClick)));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
