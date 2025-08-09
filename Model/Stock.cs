@@ -1,7 +1,9 @@
 ﻿
+using ClickerMVVM.Service.Interface;
+
 namespace ClickerMVVM.Model
 {
-    public class Stock
+    public class Stock: IStock
     {
         public string Name { get; set; }
         public int Cost { get; set; }

@@ -1,29 +1,25 @@
 ﻿using ClickerMVVM.Model;
+using ClickerMVVM.Service.Interface;
 using System.ComponentModel;
 using System.Windows.Input;
 
 public class ClickerViewModel : INotifyPropertyChanged
 {
-    private readonly GameState _state;    
-    public int Money=> _state.Money;
-    public ICommand GetMoneyCommand { get; }
+    private readonly IGameService _gameService;
 
-    public ClickerViewModel(GameState state)
+    public int Money => _gameService.GetMoney();
+    public int Bonus => _gameService.GetBonus();
+
+    public ClickerViewModel(IGameService gameService)
     {
-        _state = state;
+        _gameService = gameService;
+    }
 
-        _state.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(GameState.Money))
-                OnPropertyChanged(nameof(Money));
-        };
-
-        GetMoneyCommand = new Command(() =>
-        {
-            _state.Money += _state.GetBonus();
-        });
-            
-    }   
+    public void GetMoney()
+    {
+        _gameService.AddMoney(_gameService.GetBonus());
+        OnPropertyChanged(nameof(Money));
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged(string name) =>

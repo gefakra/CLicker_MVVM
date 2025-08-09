@@ -1,4 +1,6 @@
 ﻿using ClickerMVVM.Model;
+using ClickerMVVM.Service;
+using ClickerMVVM.Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,12 +12,14 @@ namespace ClickerMVVM.ViewModel
 {
     public class StocksListViewModel
     {
-        public ObservableCollection<StockViewModel> Stocks { get; }
+        public List<StockViewModel> Stocks { get; }
 
-        public StocksListViewModel(GameState state)
+        public StocksListViewModel(IGameService gameService, IStockService stockService)
         {
-            Stocks = new ObservableCollection<StockViewModel>(
-                state.Stocks.Select(stock => new StockViewModel(state, stock)));
+            Stocks = gameService
+            .GetStocks()
+            .Select(stock => new StockViewModel(stock, gameService, stockService))
+            .ToList();
         }
     }
 }

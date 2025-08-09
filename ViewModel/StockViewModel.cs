@@ -1,4 +1,5 @@
 ﻿using ClickerMVVM.Model;
+using ClickerMVVM.Service.Interface;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -7,43 +8,27 @@ namespace ClickerMVVM.ViewModel
 {
     public class StockViewModel : INotifyPropertyChanged
     {
-        private readonly GameState _state;
-        private readonly Stock _stock;
+        private readonly IStockService _stockService;
+        private readonly IGameService _gameService;
+        private readonly IStock _stock;
+
         public string Name => _stock.Name;
         public int Cost => _stock.Cost;
         public int Bonus => _stock.Bonus;
         public bool IsPurchased => _stock.IsPurchased;
 
-        public ICommand PurchaseCommand { get; }
-
-        public StockViewModel(GameState state, Stock stock)
+        public StockViewModel(IStock stock, IGameService gameService, IStockService stockService)
         {
-            _state = state;
             _stock = stock;
-
-            PurchaseCommand = new Command(ExecutePurchase, CanPurchase);
-
-            _state.PropertyChanged += (_, e) =>
-            {
-                if (e.PropertyName == nameof(GameState.Money))
-                {
-                    (PurchaseCommand as Command)?.ChangeCanExecute();
-                }
-            };
-
+            _gameService = gameService;
+            _stockService = stockService;
         }
 
-        private bool CanPurchase() => !_stock.IsPurchased && _state.Money >= _stock.Cost;
-
-        private void ExecutePurchase()
+        public void Purchase()
         {
-            if (!CanPurchase()) return;
-
-            _state.Money -= _stock.Cost;
-            _stock.IsPurchased = true;
-
+            _stockService.Purchase(_stock, _gameService);
             OnPropertyChanged(nameof(IsPurchased));
-            (PurchaseCommand as Command)?.ChangeCanExecute();
+            
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

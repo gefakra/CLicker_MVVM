@@ -1,5 +1,7 @@
 ﻿using ClickerMVVM;
 using ClickerMVVM.Model;
+using ClickerMVVM.Service;
+using ClickerMVVM.Service.Interface;
 using ClickerMVVM.ViewModel;
 using Microsoft.Extensions.Logging;
 
@@ -36,6 +38,8 @@ namespace Clicker_MVVM
         private static MauiAppBuilder RegisterViewModels(this MauiAppBuilder builder)
         {
             builder.Services.AddSingleton<GameState>();
+            builder.Services.AddSingleton<IGameService, GameService>();
+            builder.Services.AddSingleton<IStockService, StockService>();
             builder.Services.AddSingleton<ClickerViewModel>();
             builder.Services.AddSingleton<StatsViewModel>();
             builder.Services.AddSingleton<StocksListViewModel>();
