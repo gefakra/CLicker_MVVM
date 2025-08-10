@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
 namespace ClickerMVVM.Service.Interface
 {
     public interface IGameService
     {
-        int GetMoney();
-        void AddMoney(int amount);
-        bool SpendMoney(int amount);
+        int Money { get; }
+        int BonusPerClick { get; }
+        ObservableCollection<IStock> Stocks { get; }
         int GetBonus();
-        IReadOnlyList<IStock> GetStocks();
+        bool BuyStock(IStock stock);
     }
 }

@@ -11,9 +11,11 @@ namespace ClickerMVVM.Service
 
         public void Purchase(IStock stock, IGameService gameService)
         {
-            if (!CanPurchase(stock, gameService.GetMoney())) return;
-            gameService.SpendMoney(stock.Cost);
-            stock.IsPurchased = true;
+            if (!CanPurchase(stock, gameService.Money)) return;
+            if (gameService.BuyStock(stock))
+            {
+                stock.IsPurchased = true;
+            }
         }
     }
 }

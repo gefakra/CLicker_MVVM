@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace ClickerMVVM.Service.Interface
 {
-    public interface IStock
+    public interface IStock : INotifyPropertyChanged
     {
         string Name { get; }
         int Cost { get; }

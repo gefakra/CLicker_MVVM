@@ -1,13 +1,14 @@
 using ClickerMVVM.ViewModel;
 
-namespace ClickerMVVM;
-
-public partial class StatsPage : ContentPage
+namespace ClickerMVVM
 {
-	public StatsPage(StatsViewModel statsViewModel)
+	public partial class StatsPage : ContentPage
 	{
-		InitializeComponent();
-		BindingContext = statsViewModel;
+		public StatsPage(StatsViewModel statsViewModel)
+		{
+			InitializeComponent();
+			BindingContext = statsViewModel;
 
-    }
+		}
+	}
 }

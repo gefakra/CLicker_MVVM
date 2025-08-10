@@ -1,12 +1,13 @@
 using ClickerMVVM.ViewModel;
 
-namespace ClickerMVVM;
-
-public partial class StocksPage : ContentPage
+namespace ClickerMVVM
 {
-	public StocksPage(StocksListViewModel stocksListViewModel)
+	public partial class StocksPage : ContentPage
 	{
-		InitializeComponent();
-		BindingContext = stocksListViewModel;
+		public StocksPage(StocksListViewModel stocksListViewModel)
+		{
+			InitializeComponent();
+			BindingContext = stocksListViewModel;
+		}
 	}
 }

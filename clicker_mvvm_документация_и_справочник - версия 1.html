@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ClickerMVVM — Справочник</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#00f0c0;--muted:#94a3b8;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{margin:0;color:#e6eef8;background:linear-gradient(180deg,#071024 0%, #081425 60%);}
+    header{padding:20px 28px;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:16px}
+    h1{margin:0;font-size:20px;color:var(--accent)}
+    .container{display:grid;grid-template-columns:320px 1fr;gap:20px;padding:20px}
+    .sidebar{background:var(--card);border-radius:12px;padding:16px;height:calc(100vh - 120px);overflow:auto}
+    .search{display:flex;gap:8px;margin-bottom:12px}
+    .search input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:#e6eef8}
+    .badge{background:rgba(0,240,192,0.12);color:var(--accent);padding:6px 10px;border-radius:999px;font-weight:600}
+    .nav{display:flex;flex-direction:column;gap:8px}
+    .nav button{background:transparent;border:0;color:#cbd5e1;text-align:left;padding:8px;border-radius:8px;cursor:pointer}
+    .nav button.active{background:linear-gradient(90deg, rgba(0,240,192,0.06), transparent);color:var(--accent);}
+    main{padding:10px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;margin-bottom:12px;border:1px solid rgba(255,255,255,0.03)}
+    .card h2{margin:0 0 8px 0;color:#e6eef8}
+    .muted{color:var(--muted);font-size:13px}
+    pre{background:#06111a;color:#dbeafe;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+    .inline-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;background:var(--accent);color:#012; font-weight:700}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);font-weight:600}
+    footer{padding:14px;color:var(--muted);font-size:13px;text-align:center}
+    .hidden{display:none}
+    .tags{margin-top:8px}
+    .tag{display:inline-block;background:rgba(255,255,255,0.02);color:var(--muted);padding:6px 8px;border-radius:6px;margin-right:6px;font-size:12px}
+    @media (max-width:880px){.container{grid-template-columns:1fr;}.sidebar{height:auto}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ClickerMVVM — Справочник</h1>
+    <div class="badge">MVVM • MAUI • JS Search</div>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <div class="search">
+        <input id="q" placeholder="Поиск по компонентам (на русском/англ)..." oninput="filter()"/>
+        <button class="btn" onclick="reset()">Сброс</button>
+      </div>
+
+      <div class="pill">Компоненты</div>
+      <nav class="nav" id="nav">
+        <!-- Кнопки будут динамически заполнены -->
+      </nav>
+
+      <div style="margin-top:12px" class="muted">Фильтруй по названию, описанию или коду. Нажми элемент для перехода.</div>
+    </aside>
+
+    <main id="content">
+      <!-- Документация будет рендериться здесь -->
+    </main>
+  </div>
+
+  <footer>Сгенерировано справочное приложение — используй в статье. Копируй примеры с подсказками.</footer>
+
+<script>
+  // Структура справочника: id, title, short, tags, long html content, code snippet
+  const docs = [
+    {
+      id: 'gamestate',
+      title: 'GameState — состояние игры',
+      short: 'Хранит текущее количество денег и коллекцию акций; реализует уведомления об изменениях.',
+      tags: ['Model','INotifyPropertyChanged','Состояние'],
+      content: `<p class='muted'>GameState — центральный контейнер состояния. ViewModel подписываются на его PropertyChanged, а сервисы/VM меняют его свойства.</p>
+        <h3>Ключевые обязанности</h3>
+        <ul>
+          <li>Хранение Money (деньги игрока)</li>
+          <li>Хранение коллекции Stocks (ObservableCollection&lt;IStock&gt;)</li>
+          <li>Уведомление об изменениях через INotifyPropertyChanged</li>
+        </ul>
+        <h3>Поток данных</h3>
+        <ol>
+          <li>Service/VM меняет GameState.Money</li>
+          <li>GameState вызывает PropertyChanged</li>
+          <li>ViewModel, подписанный на событие, вызывает OnPropertyChanged для своих свойств</li>
+          <li>UI обновляет отображение</li>
+        </ol>`,
+      code: `// GameState — упрощённый вид с комментариями\npublic class GameState : ObservableObject\n{\n    private int _money; // приватное поле хранит деньги\n    public int Money\n    {\n        get => _money;\n        set => SetProperty(ref _money, value); // уведомляет об изменении\n    }\n\n    public ObservableCollection<IStock> Stocks { get; } = new ObservableCollection<IStock>();\n}`
+    },
+    {
+      id: 'stock',
+      title: 'Stock — модель акции',
+      short: 'Имя, стоимость, бонус и флаг покупки; реализует уведомления об изменениях.',
+      tags: ['Model','INotifyPropertyChanged','Domain'],
+      content: `<p class='muted'>Stock — простая модель. Рекомендуется хранить только данные и минимальную логику (например, валидация) — не бизнес-правила.</p>
+        <h3>Свойства</h3>
+        <ul>
+          <li><b>Name</b> — название</li>
+          <li><b>Cost</b> — стоимость</li>
+          <li><b>Bonus</b> — бонус к клику</li>
+          <li><b>IsPurchased</b> — куплена или нет</li>
+        </ul>`,
+      code: `public class Stock : ObservableObject, IStock\n{\n    private bool _isPurchased;\n    public string Name { get; set; }\n    public int Cost { get; set; }\n    public int Bonus { get; set; }\n    public bool IsPurchased { get => _isPurchased; set => SetProperty(ref _isPurchased, value); }\n}`
+    },
+    {
+      id: 'igameservice',
+      title: 'IGameService — контракт игрового сервиса',
+      short: 'Определяет API для управления деньгами, бонусами и списком акций.',
+      tags: ['Service','Interface'],
+      content: `<p class='muted'>Интерфейсы помогают заменить реализацию в тестах или при рефакторинге. IGameservice определяет минимальный набор операций.</p>`,
+      code: `public interface IGameService\n{\n    int Money { get; }\n    int BonusPerClick { get; }\n    ObservableCollection<IStock> Stocks { get; }\n    int GetBonus();\n    bool BuyStock(IStock stock);\n}`
+    },
+    {
+      id: 'gameservice',
+      title: 'GameService — реализация логики (пример)',
+      short: 'Хранит ссылку на GameState; считает BonusPerClick; изменяет Money; обрабатывает покупку.',
+      tags: ['Service','Business Logic'],
+      content: `<p class='muted'>GameService работает как «фасад» над GameState: один входной узел для операций, связанных со статусом игры.</p>
+        <h3>Почему использовать</h3>
+        <ul>
+          <li>Централизует правила покупки и расчёта бонусов</li>
+          <li>Упрощает тестирование — можно мокировать IGameService</li>
+        </ul>
+        <h3>Когда можно убрать</h3>
+        <p>Если логика очень простая и не будет расти — перенести методы в VM.</p>`,
+      code: `public class GameService : IGameService\n{\n    private readonly GameState _state;\n    public int Money => _state.Money;\n    public int BonusPerClick => 1 + _state.Stocks.Where(s => s.IsPurchased).Sum(s => s.Bonus);\n    public ObservableCollection<IStock> Stocks => _state.Stocks;\n    public GameService(GameState state) => _state = state;\n    public int GetBonus() => _state.Money += BonusPerClick;\n    public bool BuyStock(IStock stock)\n    {\n        if (!stock.IsPurchased && _state.Money >= stock.Cost)\n        {\n            _state.Money -= stock.Cost;\n            stock.IsPurchased = true;\n            return true;\n        }\n        return false;\n    }\n}`
+    },
+    {
+      id: 'stockservice',
+      title: 'StockService — вспомогательная логика покупки',
+      short: 'Проверяет возможности покупки и выполняет её через GameService (опционально).',
+      tags: ['Service','Helper'],
+      content: `<p class='muted'>StockService имеет вспомогательную роль. В простом проекте можно обойтись без него.</p>`,
+      code: `public class StockService : IStockService\n{\n    public bool CanPurchase(IStock stock, int money) => !stock.IsPurchased && money >= stock.Cost;\n    public void Purchase(IStock stock, IGameService gameService)\n    {\n        if (!CanPurchase(stock, gameService.Money)) return;\n        if (gameService.BuyStock(stock)) stock.IsPurchased = true;\n    }\n}`
+    },
+    {
+      id: 'clickerviewmodel',
+      title: 'ClickerViewModel — логика клика',
+      short: 'Команда GetMoneyCommand, отображаемые свойства Money и Bonus, подписка на GameState.',
+      tags: ['ViewModel','Команды'],
+      content: `<p class='muted'>ClickerViewModel принимает команды от View и вызывает GameService.GetBonus(). Подписывается на изменения GameState для обновления UI.</p>
+        <h3>Обязательные наблюдения</h3>
+        <ul>
+          <li>Подписка на state.PropertyChanged — важно правильно обрабатывать имена свойств</li>
+          <li>Команда должна вызывать GetBonus без долгих синхронных операций</li>
+        </ul>`,
+      code: `public class ClickerViewModel : ObservableObject\n{\n    private readonly IGameService _gameService;\n    public ICommand GetMoneyCommand { get; }\n    public int Money => _gameService.Money;\n    public int Bonus => _gameService.BonusPerClick;\n    public ClickerViewModel(IGameService gameService, GameState state)\n    {\n        _gameService = gameService;\n        state.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(state.Money)) OnPropertyChanged(nameof(Money)); };\n        GetMoneyCommand = new Command(() => _gameService.GetBonus());\n    }\n}`
+    },
+    {
+      id: 'statsviewmodel',
+      title: 'StatsViewModel — отображение статистики',
+      short: 'Показывает TotalMoney и BonusPerClick; подписывается на изменения в state и акциях.',
+      tags: ['ViewModel','Статистика'],
+      content: `<p class='muted'>StatsViewModel агрегирует данные из GameState и GameService. Важно аккуратно подписываться на изменения акций, чтобы не получить утечек памяти.</p>`,
+      code: `public class StatsViewModel : ObservableObject\n{\n    public int TotalMoney => _state.Money;\n    public int BonusPerClick => _gameService.BonusPerClick;\n    // Подписки на _state.PropertyChanged и на PropertyChanged каждой акции\n}`
+    },
+    {
+      id: 'stockslist',
+      title: 'StocksListViewModel & StockViewModel — список и элемент',
+      short: 'StocksListViewModel формирует список StockViewModel; StockViewModel держит команду покупки и подписку на модель.',
+      tags: ['ViewModel','CollectionView'],
+      content: `<p class='muted'>Для отображения коллекций часто используется CollectionView и отдельные VM для элементов. Это даёт гибкость (каждый элемент управляет своей командой и состоянием).</p>
+        <h3>Особенности</h3>
+        <ul>
+          <li>Проверять CanExecute команды — менять состояние кнопки</li>
+          <li>Подписки на PropertyChanged в каждом элементе — нагрузка при большом списке</li>
+        </ul>`,
+      code: `// StockViewModel - пример ключевой логики\nPurchaseCommand = new Command(\n  execute: () => { if (_gameService.BuyStock(_stock)) OnPropertyChanged(nameof(IsPurchased)); },\n  canExecute: () => !_stock.IsPurchased && _gameService.Money >= _stock.Cost\n);`
+    },
+    {
+      id: 'ui',
+      title: 'View (XAML) — страницы и биндинг',
+      short: 'ClickerPage, StatsPage, StocksPage — все страницы связаны через BindingContext и должны быть максимально "глупыми".',
+      tags: ['View','XAML','UI'],
+      content: `<p class='muted'>XAML содержит визуальную логику, привязанную к ViewModel через BindingContext. Кнопки, CollectionView и Label используют биндинги и команды.</p>
+        <h3>Советы</h3>
+        <ul>
+          <li>Старайся не писать бизнес-логику в code-behind</li>
+          <li>Используй конвертеры и стили для переиспользуемых визуальных правил</li>
+        </ul>`
+    },
+    {
+      id: 'di',
+      title: 'DI & MauiProgram — регистрация',
+      short: 'Регистрируем GameState, сервисы, ViewModel и страницы в DI. Это позволяет инжектить зависимости через конструкторы.',
+      tags: ['DI','MauiProgram','Bootstrap'],
+      content: `<p class='muted'>Регистрация в DI делает код удобным для тестирования и замены реализаций. На старте можно зарегистрировать как Singleton для состояния и ViewModel.</p>`,
+      code: `builder.Services.AddSingleton<GameState>();\nbuilder.Services.AddSingleton<IGameService, GameService>();\nbuilder.Services.AddSingleton<ClickerViewModel>();\n// и т.д.`
+    }
+  ];
+
+  const nav = document.getElementById('nav');
+  const content = document.getElementById('content');
+
+  function el(tag, cls, html){const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e}
+
+  // Рендер навигации и контента
+  function renderAll(){
+    nav.innerHTML = '';
+    content.innerHTML = '';
+    docs.forEach(d => {
+      const btn = el('button','', `<strong>${d.title}</strong><div class='muted'>${d.short}</div>`);
+      btn.onclick = () => showDoc(d.id);
+      btn.id = 'nav-'+d.id;
+      nav.appendChild(btn);
+
+      // Контент-карты
+      const card = el('section','card', `<h2 id='h-${d.id}'>${d.title}</h2><div class='muted'>${d.short}</div><div class='tags'>${d.tags.map(t=>"<span class='tag'>"+t+"</span>").join('')}</div>${d.content || ''}`);
+
+      if(d.code){
+        const pre = el('pre','',''+d.code);
+        const copyBtn = el('button','btn','Копировать код');
+        copyBtn.onclick = ()=> navigator.clipboard.writeText(d.code).then(()=>{copyBtn.textContent='Скопировано'; setTimeout(()=>copyBtn.textContent='Копировать код',1200)})
+        const actions = el('div','inline-actions'); actions.appendChild(copyBtn);
+        card.appendChild(actions);
+        card.appendChild(pre);
+      }
+
+      content.appendChild(card);
+    });
+  }
+
+  function showDoc(id){
+    // Активируем кнопку
+    Array.from(nav.children).forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('nav-'+id); if(btn) btn.classList.add('active');
+    // Прокрутка к разделу
+    const heading = document.getElementById('h-'+id); if(heading) heading.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function filter(){
+    const q = document.getElementById('q').value.toLowerCase().trim();
+    // фильтруем навигацию и контент
+    docs.forEach(d=>{
+      const text = (d.title + ' ' + d.short + ' ' + (d.content||'') + ' ' + (d.code||'')).toLowerCase();
+      const match = !q || text.indexOf(q) !== -1;
+      const btn = document.getElementById('nav-'+d.id);
+      if(btn) btn.style.display = match ? '' : 'none';
+      const sec = document.getElementById('h-'+d.id);
+      if(sec && sec.parentElement) sec.parentElement.style.display = match ? '' : 'none';
+    });
+  }
+
+  function reset(){document.getElementById('q').value=''; filter();}
+
+  // Инициализация
+  renderAll();
+  // Подсветим первый
+  if(docs.length) showDoc(docs[0].id);
+</script>
+</body>
+</html>

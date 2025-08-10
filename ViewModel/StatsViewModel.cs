@@ -1,36 +1,30 @@
-﻿using ClickerMVVM.Service;
+﻿using ClickerMVVM.Model;
 using ClickerMVVM.Service.Interface;
 using System.ComponentModel;
 
-using System.Runtime.CompilerServices;
-
 namespace ClickerMVVM.ViewModel
 {
-    public class StatsViewModel : INotifyPropertyChanged
+    public class StatsViewModel : ObservableObject
     {
         private readonly IGameService _gameService;
-        public int TotalMoney => _gameService.GetMoney();
-        public int BonusPerClick => _gameService.GetBonus();        
+        private readonly GameState _state;
+        public int TotalMoney => _state.Money;
+        public int BonusPerClick => _gameService.BonusPerClick;
 
-        public StatsViewModel(IGameService gameService)
+        public StatsViewModel(IGameService gameService,GameState state)
         {
             _gameService = gameService;
-            //if (_gameService is GameService gs)
-            //{
-            //    gs.GetStocks().ToList().ForEach(s =>
-            //    {
-            //        if (s is INotifyPropertyChanged npc)
-            //            npc.PropertyChanged += (_, __) => OnPropertyChanged(nameof(BonusPerClick));
-            //    });
-            //}
+            _state = state;
 
-            (gameService.GetStocks() as IEnumerable<INotifyPropertyChanged>)?
+            _state.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(_state.Money))
+                    OnPropertyChanged(nameof(TotalMoney));
+            };
+
+            (gameService.Stocks as IEnumerable<INotifyPropertyChanged>)?
                 .ToList()
                 .ForEach(s => s.PropertyChanged += (_, __) => OnPropertyChanged(nameof(BonusPerClick)));
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = "") =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
